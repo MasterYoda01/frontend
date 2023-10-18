@@ -20,7 +20,10 @@ const deletePost = async () => {
 
 <template>
   <p class="author">{{ props.post.author }}</p>
-  <p>{{ props.post.content }}</p>
+  <p>{{ props.post.prompt }}</p>
+  <p><img :src="props.post.inURL" alt="Input ImageURL" width="40" height="40" /></p>
+  <p v-if="props.post.outURL">{{ props.post.outURL }}</p>
+  <p><img :src="props.post.outURL" alt="AI ImageURL" width="40" height="40" /></p>
   <div class="base">
     <menu v-if="props.post.author == currentUsername">
       <li><button class="btn-small pure-button" @click="emit('editPost', props.post._id)">Edit</button></li>

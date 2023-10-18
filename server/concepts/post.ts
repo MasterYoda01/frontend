@@ -1,30 +1,63 @@
 import { Filter, ObjectId } from "mongodb";
-
 import DocCollection, { BaseDoc } from "../framework/doc";
 import { NotAllowedError, NotFoundError } from "./errors";
 
-export interface PostOptions {
-  backgroundColor?: string;
-}
+// export interface PostOptions {
+//   backgroundColor?: string;
+// }
 
 export interface PostDoc extends BaseDoc {
   author: ObjectId;
-  content: string;
-  options?: PostOptions;
+  prompt: string;
+  inURL: string;
+  outURL: string;
 }
 
 export default class PostConcept {
   public readonly posts = new DocCollection<PostDoc>("posts");
 
-  async create(author: ObjectId, content: string, options?: PostOptions) {
-    const _id = await this.posts.createOne({ author, content, options });
-    return { msg: "Post successfully created!", post: await this.posts.readOne({ _id }) };
+  async create(author: ObjectId, prompt: string, inURL: string) {
+    if (prompt !== undefined && prompt.length !== 0) {
+      //if there is a prompt
+      const imageurl = await this.getImage(prompt, inURL);
+      const outURL = imageurl.output_url;
+
+      const _id = await this.posts.createOne({ author, prompt, inURL, outURL });
+      return { msg: "Post successfully created!", post: await this.posts.readOne({ _id }) };
+    } else {
+      //if no prompt
+      const _id = await this.posts.createOne({ author, prompt, inURL });
+      return { msg: "Post successfully created!", post: await this.posts.readOne({ _id }) };
+    }
+  }
+
+  async getImage(prompt: string, imageurl: string) {
+    //api call to AI-Image Generator
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const deepai = require("deepai");
+
+    deepai.setApiKey("309d1703-7dff-44c7-847e-408ad698d5da");
+    let resp;
+    try {
+      resp = await deepai.callStandardApi("image-editor", {
+        image: imageurl,
+        text: prompt,
+      });
+      return resp;
+    } catch (error) {
+      return resp;
+    }
   }
 
   async getPosts(query: Filter<PostDoc>) {
     const posts = await this.posts.readMany(query, {
-      sort: { dateUpdated: -1 },
+      sort: { dateUpdated: 1 },
     });
+    return posts;
+  }
+
+  async getFromTarget(user: ObjectId, targets: ObjectId[]) {
+    const posts = await this.posts.readMany({ author: { $in: targets.concat([user]) } });
     return posts;
   }
 
@@ -34,7 +67,9 @@ export default class PostConcept {
 
   async update(_id: ObjectId, update: Partial<PostDoc>) {
     this.sanitizeUpdate(update);
+    await this.updateURL(update);
     await this.posts.updateOne({ _id }, update);
+
     return { msg: "Post successfully updated!" };
   }
 
@@ -53,9 +88,18 @@ export default class PostConcept {
     }
   }
 
+  private async updateURL(update: Partial<PostDoc>) {
+    // updates the outURL from changed prompt or inURL
+    if (update.prompt && update.inURL) {
+      const call = await this.getImage(update.prompt, update.inURL);
+      const outURL = call.output_url;
+      update.outURL = outURL;
+    }
+  }
+
   private sanitizeUpdate(update: Partial<PostDoc>) {
     // Make sure the update cannot change the author.
-    const allowedUpdates = ["content", "options"];
+    const allowedUpdates = ["prompt", "inURL", "outURL"];
     for (const key in update) {
       if (!allowedUpdates.includes(key)) {
         throw new NotAllowedError(`Cannot update '${key}' field!`);

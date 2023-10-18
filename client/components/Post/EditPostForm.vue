@@ -4,12 +4,13 @@ import { fetchy } from "../../utils/fetchy";
 import { formatDate } from "../../utils/formatDate";
 
 const props = defineProps(["post"]);
-const content = ref(props.post.content);
+const prompt = ref(props.post.prompt);
+const inURL = ref(props.post.inURL);
 const emit = defineEmits(["editPost", "refreshPosts"]);
 
-const editPost = async (content: string) => {
+const editPost = async (prompt: string, inURL: string) => {
   try {
-    await fetchy(`/api/posts/${props.post._id}`, "PATCH", { body: { update: { content: content } } });
+    await fetchy(`/api/posts/${props.post._id}`, "PATCH", { body: { update: { prompt: prompt, inURL: inURL } } });
   } catch (e) {
     return;
   }
@@ -19,9 +20,11 @@ const editPost = async (content: string) => {
 </script>
 
 <template>
-  <form @submit.prevent="editPost(content)">
-    <p class="author">{{ props.post.author }}</p>
-    <textarea id="content" v-model="content" placeholder="Create a post!" required> </textarea>
+  <form @submit.prevent="editPost(prompt, inURL)">
+    <label for="prompt">Image Prompt:</label>
+    <textarea id="prompt" v-model="prompt" placeholder="Create a post!"> </textarea>
+    <label for="inURL">Input inURL:</label>
+    <textarea id="inURL" v-model="inURL" placeholder="Enter Image Prompt!" required> </textarea>
     <div class="base">
       <menu>
         <li><button class="btn-small pure-button-primary pure-button" type="submit">Save</button></li>
@@ -36,6 +39,7 @@ const editPost = async (content: string) => {
 <style scoped>
 form {
   background-color: var(--base-bg);
+  /* background-color: blue; */
   display: flex;
   flex-direction: column;
   gap: 0.5em;

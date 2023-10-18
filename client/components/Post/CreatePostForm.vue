@@ -2,13 +2,17 @@
 import { ref } from "vue";
 import { fetchy } from "../../utils/fetchy";
 
-const content = ref("");
+const prompt = ref("");
+const inURL = ref("");
+const dropdownString = ref("");
 const emit = defineEmits(["refreshPosts"]);
 
-const createPost = async (content: string) => {
+const createPost = async (prompt: string, inURL: string) => {
+  console.log(dropdownString);
+  console.log(dropdownString.value === "AI");
   try {
     await fetchy("/api/posts", "POST", {
-      body: { content },
+      body: { prompt: prompt, inURL: inURL },
     });
   } catch (_) {
     return;
@@ -16,16 +20,24 @@ const createPost = async (content: string) => {
   emit("refreshPosts");
   emptyForm();
 };
-
 const emptyForm = () => {
-  content.value = "";
+  prompt.value = "";
 };
 </script>
 
 <template>
-  <form @submit.prevent="createPost(content)">
-    <label for="content">Post Contents:</label>
-    <textarea id="content" v-model="content" placeholder="Create a post!" required> </textarea>
+  <form @submit.prevent="createPost(prompt, inURL)">
+    <label for="prompt">Choose AI or No AI:</label>
+    <select name="dropdown" id="ai" v-model="dropdownString">
+      <option value="NoAI">Regular Photo</option>
+      <option value="AI">AI-Generated Photo</option>
+    </select>
+    <br />
+    <label v-if="dropdownString === 'AI'" for="prompt">Image Prompt:</label>
+    <textarea v-if="dropdownString === 'AI'" id="prompt" v-model="prompt" placeholder="Enter Prompt!"> </textarea>
+
+    <label v-if="dropdownString === 'AI'" for="inURL">Input ImageURL:</label>
+    <textarea id="inURL" v-model="inURL" placeholder="Enter Image URL!" required> </textarea>
     <button type="submit" class="pure-button-primary pure-button">Create Post</button>
   </form>
 </template>

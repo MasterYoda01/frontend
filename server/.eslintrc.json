@@ -24,6 +24,7 @@
         "argsIgnorePattern": "^_"
       }
     ],
-    "@typescript-eslint/no-floating-promises": ["error"]
+    "@typescript-eslint/no-floating-promises": ["error"],
+    "@typescript-eslint/no-explicit-any": "off" //might need to comment this out
   }
 }

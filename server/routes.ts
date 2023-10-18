@@ -2,8 +2,11 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { Friend, Post, User, WebSession } from "./app";
-import { PostDoc, PostOptions } from "./concepts/post";
+import { Comment, Friend, Memory, Post, Reflection, User, WebSession } from "./app";
+import { CommentDoc } from "./concepts/comment";
+import { MemoryDoc } from "./concepts/memory";
+import { PostDoc } from "./concepts/post";
+import { ReflectionDoc } from "./concepts/reflection";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
 import Responses from "./responses";
@@ -58,21 +61,24 @@ class Routes {
   }
 
   @Router.get("/posts")
-  async getPosts(author?: string) {
+  async getPosts(session: WebSessionDoc, author?: string) {
+    const user = WebSession.getUser(session);
+    const friends = await Friend.getFriends(user);
     let posts;
-    if (author) {
-      const id = (await User.getUserByUsername(author))._id;
-      posts = await Post.getByAuthor(id);
+    if (author === undefined) {
+      posts = await Post.getFromTarget(user, friends);
     } else {
-      posts = await Post.getPosts({});
+      const authorID = (await User.getUserByUsername(author))._id;
+      await Friend.isFriends(user, authorID);
+      posts = await Post.getByAuthor(authorID);
     }
     return Responses.posts(posts);
   }
 
   @Router.post("/posts")
-  async createPost(session: WebSessionDoc, content: string, options?: PostOptions) {
+  async createPost(session: WebSessionDoc, prompt: string, inURL: string) {
     const user = WebSession.getUser(session);
-    const created = await Post.create(user, content, options);
+    const created = await Post.create(user, prompt, inURL);
     return { msg: created.msg, post: await Responses.post(created.post) };
   }
 
@@ -96,7 +102,7 @@ class Routes {
     return await User.idsToUsernames(await Friend.getFriends(user));
   }
 
-  @Router.delete("/friends/:friend")
+  @Router.delete("/friends/")
   async removeFriend(session: WebSessionDoc, friend: string) {
     const user = WebSession.getUser(session);
     const friendId = (await User.getUserByUsername(friend))._id;
@@ -135,6 +141,98 @@ class Routes {
     const user = WebSession.getUser(session);
     const fromId = (await User.getUserByUsername(from))._id;
     return await Friend.rejectRequest(fromId, user);
+  }
+
+  @Router.get("/comments")
+  async getPostComments(postId: ObjectId) {
+    //here im going to get all the comments from a post
+    const comments = await Comment.getByPostId(postId);
+    return Responses.comments(comments);
+  }
+
+  @Router.post("/comments/:postId")
+  async createComment(session: WebSessionDoc, content: string, postId: ObjectId) {
+    //done!
+    const user = WebSession.getUser(session);
+    const created = await Comment.create(user, content, postId);
+    return { msg: created.msg, comment: await Responses.comment(created.comment) };
+  }
+
+  @Router.patch("/comments/:commentId")
+  async updateComment(session: WebSessionDoc, commentId: ObjectId, update: Partial<CommentDoc>) {
+    const user = WebSession.getUser(session);
+    await Comment.isAuthor(user, commentId);
+    return await Comment.update(commentId, update);
+  }
+
+  @Router.delete("/comments/:commentId")
+  async deleteComment(session: WebSessionDoc, commentId: ObjectId) {
+    const user = WebSession.getUser(session);
+    await Comment.isAuthor(user, commentId);
+    return Comment.delete(commentId);
+  }
+
+  @Router.get("/memories")
+  async getAllReadyMemories(session: WebSessionDoc) {
+    const user = WebSession.getUser(session);
+    const memories = await Memory.unlockAllReadyMemories(user);
+    return memories;
+  }
+
+  @Router.get("/memories/:dateRequested")
+  async getRandomMemory(session: WebSessionDoc, dateRequested: Date) {
+    const user = WebSession.getUser(session);
+    const memories = await Memory.unlockRandomMemory(user, dateRequested);
+    return memories;
+  }
+
+  @Router.post("/memories")
+  async createMemory(session: WebSessionDoc, dateToOpen: string, content: string, url: string) {
+    const user = WebSession.getUser(session);
+    const created = await Memory.create(user, new Date(dateToOpen), content, url);
+    return { msg: created.msg, comment: await Responses.memory(created.memory) };
+  }
+
+  @Router.patch("/memories/:memoryId")
+  async updateMemory(session: WebSessionDoc, memoryId: ObjectId, update: Partial<MemoryDoc>) {
+    const user = WebSession.getUser(session);
+    await Memory.isAuthor(user, memoryId);
+    return await Memory.update(memoryId, update);
+  }
+
+  @Router.delete("/memories/:memoryId")
+  async deleteMemory(session: WebSessionDoc, memoryId: ObjectId) {
+    const user = WebSession.getUser(session);
+    await Memory.isAuthor(user, memoryId);
+    return Comment.delete(memoryId);
+  }
+
+  @Router.get("/reflections")
+  async getReflections(session: WebSessionDoc) {
+    const user = WebSession.getUser(session);
+    const reflections = await Reflection.getByAuthor(user);
+    return Responses.reflections(reflections);
+  }
+
+  @Router.post("/reflections")
+  async createReflection(session: WebSessionDoc, content: string, inURL: string) {
+    const user = WebSession.getUser(session);
+    const created = await Reflection.create(user, content, inURL);
+    return { msg: created.msg, reflection: await Responses.reflection(created.reflection) };
+  }
+
+  @Router.patch("/reflections/:_id")
+  async updateReflections(session: WebSessionDoc, _id: ObjectId, update: Partial<ReflectionDoc>) {
+    const user = WebSession.getUser(session);
+    await Reflection.isAuthor(user, _id);
+    return await Reflection.update(_id, update);
+  }
+
+  @Router.delete("/reflections/:_id")
+  async deleteReflection(session: WebSessionDoc, _id: ObjectId) {
+    const user = WebSession.getUser(session);
+    await Reflection.isAuthor(user, _id);
+    return Reflection.delete(_id);
   }
 }
 

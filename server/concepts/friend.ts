@@ -81,7 +81,7 @@ export default class FriendConcept {
     return request;
   }
 
-  private async isNotFriends(u1: ObjectId, u2: ObjectId) {
+  public async isNotFriends(u1: ObjectId, u2: ObjectId) {
     const friendship = await this.friends.readOne({
       $or: [
         { user1: u1, user2: u2 },
@@ -90,6 +90,18 @@ export default class FriendConcept {
     });
     if (friendship !== null || u1.toString() === u2.toString()) {
       throw new AlreadyFriendsError(u1, u2);
+    }
+  }
+
+  public async isFriends(u1: ObjectId, u2: ObjectId) {
+    const friendship = await this.friends.readOne({
+      $or: [
+        { user1: u1, user2: u2 },
+        { user1: u2, user2: u1 },
+      ],
+    });
+    if (friendship === null || u1.toString() === u2.toString()) {
+      throw new NotFriendsError(u1, u2);
     }
   }
 
@@ -140,5 +152,14 @@ export class AlreadyFriendsError extends NotAllowedError {
     public readonly user2: ObjectId,
   ) {
     super("{0} and {1} are already friends!", user1, user2);
+  }
+}
+
+export class NotFriendsError extends NotAllowedError {
+  constructor(
+    public readonly user1: ObjectId,
+    public readonly user2: ObjectId,
+  ) {
+    super("{0} and {1} are not friends!", user1, user2);
   }
 }
