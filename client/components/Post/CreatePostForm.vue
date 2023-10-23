@@ -8,8 +8,6 @@ const dropdownString = ref("");
 const emit = defineEmits(["refreshPosts"]);
 
 const createPost = async (prompt: string, inURL: string) => {
-  console.log(dropdownString);
-  console.log(dropdownString.value === "AI");
   try {
     await fetchy("/api/posts", "POST", {
       body: { prompt: prompt, inURL: inURL },

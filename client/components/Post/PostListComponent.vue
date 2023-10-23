@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import CreatePostForm from "@/components/Post/CreatePostForm.vue";
-import EditPostForm from "@/components/Post/EditPostForm.vue";
-import PostComponent from "@/components/Post/PostComponent.vue";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
+import CommentListComponent from "../Comment/CommentListComponent.vue";
+import CreateCommentForm from "../Comment/CreateCommentForm.vue";
+import CreatePostForm from "./CreatePostForm.vue";
+import EditPostForm from "./EditPostForm.vue";
+import PostComponent from "./PostComponent.vue";
 import SearchPostForm from "./SearchPostForm.vue";
 
 const { isLoggedIn } = storeToRefs(useUserStore());
@@ -51,6 +53,10 @@ onBeforeMount(async () => {
     <article v-for="post in posts" :key="post._id">
       <PostComponent v-if="editing !== post._id" :post="post" @refreshPosts="getPosts" @editPost="updateEditing" />
       <EditPostForm v-else :post="post" @refreshPosts="getPosts" @editPost="updateEditing" />
+      <CreateCommentForm :post="post" @refreshPosts="getPosts" />
+
+      <h3>Comments:</h3>
+      <CommentListComponent :postId="post._id" />
     </article>
   </section>
   <p v-else-if="loaded">No posts found</p>
