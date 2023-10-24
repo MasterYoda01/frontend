@@ -4,8 +4,8 @@ import { onBeforeMount, ref } from "vue";
 import { useUserStore } from "../../stores/user";
 import { fetchy } from "../../utils/fetchy";
 import CommentComponent from "./CommentComponent.vue";
+import CreateCommentForm from "./CreateCommentForm.vue";
 import EditCommentForm from "./EditCommentForm.vue";
-
 const { isLoggedIn } = storeToRefs(useUserStore());
 
 const loaded = ref(false);
@@ -14,8 +14,8 @@ let editing = ref("");
 
 const props = defineProps(["postId"]);
 
-async function getPostComments(postId?: string) {
-  //   let query: Record<string, string> = author !== undefined ? { author } : {};
+async function getPostComments() {
+  let postId = props.postId;
   let query: Record<string, string> = postId !== undefined ? { postId } : {};
   let commentResults;
   try {
@@ -31,12 +31,14 @@ function updateEditing(id: string) {
 }
 
 onBeforeMount(async () => {
-  await getPostComments(props.postId);
+  await getPostComments();
   loaded.value = true;
 });
 </script>
 
 <template>
+  <CreateCommentForm v-if="isLoggedIn" :postId="props.postId" @refreshComments="getPostComments" />
+
   <!-- <div class="row">
     <h2 v-if="!searchAuthor">Comments:</h2>
     <h2 v-else>Comments by {{ searchAuthor }}:</h2>

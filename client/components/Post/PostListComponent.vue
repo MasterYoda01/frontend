@@ -4,7 +4,6 @@ import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
 import CommentListComponent from "../Comment/CommentListComponent.vue";
-import CreateCommentForm from "../Comment/CreateCommentForm.vue";
 import CreatePostForm from "./CreatePostForm.vue";
 import EditPostForm from "./EditPostForm.vue";
 import PostComponent from "./PostComponent.vue";
@@ -53,7 +52,6 @@ onBeforeMount(async () => {
     <article v-for="post in posts" :key="post._id">
       <PostComponent v-if="editing !== post._id" :post="post" @refreshPosts="getPosts" @editPost="updateEditing" />
       <EditPostForm v-else :post="post" @refreshPosts="getPosts" @editPost="updateEditing" />
-      <CreateCommentForm :post="post" @refreshPosts="getPosts" />
 
       <h3>Comments:</h3>
       <CommentListComponent :postId="post._id" />

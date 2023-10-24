@@ -5,14 +5,12 @@ import { fetchy } from "../../utils/fetchy";
 const content = ref("");
 const emit = defineEmits(["refreshComments"]);
 
-const props = defineProps(["post"]);
+const props = defineProps(["postId"]);
 
 const createComment = async (content: string) => {
-  console.log(props.post._id);
-  console.log(content);
   try {
-    await fetchy(`/api/comments/${props.post._id}`, "POST", {
-      body: { content: content, postId: props.post._id },
+    await fetchy(`/api/comments/${props.postId}`, "POST", {
+      body: { content: content, postId: props.postId },
     });
   } catch (_) {
     return;
