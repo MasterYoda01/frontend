@@ -176,6 +176,7 @@ class Routes {
   async getAllReadyMemories(session: WebSessionDoc) {
     const user = WebSession.getUser(session);
     const memories = await Memory.unlockAllReadyMemories(user);
+    console.log(memories)
     return memories;
   }
 
@@ -202,9 +203,11 @@ class Routes {
 
   @Router.delete("/memories/:memoryId")
   async deleteMemory(session: WebSessionDoc, memoryId: ObjectId) {
+    console.log("deleted!");
+    console.log(memoryId);
     const user = WebSession.getUser(session);
     await Memory.isAuthor(user, memoryId);
-    return Comment.delete(memoryId);
+    return Memory.delete(memoryId);
   }
 
   @Router.get("/reflections")

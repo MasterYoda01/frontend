@@ -30,7 +30,7 @@ const emptyForm = () => {
       <option value="NoAI">Regular Photo</option>
       <option value="AI">AI-Generated Photo</option>
     </select>
-    <br />
+
     <label v-if="dropdownString === 'AI'" for="prompt">Image Prompt:</label>
     <textarea v-if="dropdownString === 'AI'" id="prompt" v-model="prompt" placeholder="Enter Prompt!"> </textarea>
 

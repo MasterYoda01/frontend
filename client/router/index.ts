@@ -4,6 +4,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import HomeView from "../views/HomeView.vue";
 import LoginView from "../views/LoginView.vue";
+import MemoryView from "../views/MemoryView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
 import SettingView from "../views/SettingView.vue";
 
@@ -21,6 +22,12 @@ const router = createRouter({
       component: SettingView,
       meta: { requiresAuth: true },
     },
+    {
+      path: "/memories",
+      name: "Memories",
+      component: MemoryView,
+    },
+
     {
       path: "/login",
       name: "Login",
