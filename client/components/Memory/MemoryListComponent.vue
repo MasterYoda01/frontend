@@ -13,98 +13,113 @@ const loaded = ref(false);
 let option = ref("");
 let editing = ref("");
 let readyMemories = ref<Array<Record<string, string>>>([]);
-let randomMemory = ref<Record<string, string>>();
+let randomMemory = ref<Record<string, string>>({});
 
+let memoryDate = ref();
+
+async function clearMemories() {
+  if (option.value === "ready") {
+    // await getRandomMemory();
+    readyMemories.value = [];
+  }
+  if (option.value === "random") {
+    // await getReadyMemories();
+    randomMemory.value = {};
+  }
+}
 async function getReadyMemories() {
-  //   let postId = props.postId;
-  //   let query: Record<string, string> = postId !== undefined ? { postId } : {};
   let memoryResults;
   try {
     memoryResults = await fetchy("/api/memories", "GET");
   } catch (_) {
     return;
   }
-  console.log("ready", memoryResults);
-
   option.value = "ready";
   readyMemories.value = memoryResults;
 }
 
 async function getRandomMemory(dateRequested?: string) {
+  // console.log(dateRequested);
   let query: Record<string, string> = dateRequested !== undefined ? { dateRequested } : {};
   let memoryResults;
+  if (dateRequested !== undefined) {
+    memoryDate.value = dateRequested;
+  } else {
+    dateRequested = memoryDate.value;
+  }
   try {
     memoryResults = await fetchy(`/api/memories/${dateRequested}`, "GET", { query });
   } catch (_) {
     return;
   }
-  console.log("random", memoryResults);
   option.value = "random";
   randomMemory.value = memoryResults;
+  console.log(randomMemory);
 }
 
 function updateEditing(id: string) {
   editing.value = id;
 }
 
-//can now try to make it so if dropdown string is ready, theres a submit form for ready. Once you click submit, it gets all ready memories
 onBeforeMount(async () => {
-  await getReadyMemories();
-  await getRandomMemory();
   loaded.value = true;
 });
 </script>
 
 <template>
-  <CreateMemoryForm v-if="isLoggedIn" @refreshMemories="getReadyMemories" />
-  <label>Choose Option:</label>
-  <GetMemoryComponent @ready="getReadyMemories" @random="getRandomMemory" />
-  <section v-if="option === 'ready'">
-    <article v-for="memory in readyMemories" :key="memory._id">
-      <MemoryComponent v-if="editing !== memory._id && option === 'ready'" :memory="memory" @refreshMemories="getReadyMemories" @editMemory="updateEditing" />
+  <div>
+    <CreateMemoryForm v-if="isLoggedIn" @refreshMemories="getReadyMemories" />
 
-      <!-- <EditMemoryForm v-else :memory="memory" @refreshmemories="getReadyMemories" @editmemory="updateEditing" /> -->
-    </article>
-  </section>
+    <label class="choose-option-label">Choose Option:</label>
 
-  <section v-if="option === 'random'">
-    <MemoryComponent v-if="editing !== randomMemory!.id && option === 'random'" :memory="randomMemory" @refreshMemories="getRandomMemory" @editMemory="updateEditing" />
-  </section>
-  <!-- <p v-else-if="loaded">No memories found</p>
-  <p v-else>Loading...</p> -->
+    <GetMemoryComponent @blank="clearMemories" @ready="getReadyMemories" @random="getRandomMemory" />
+
+    <section v-if="option === 'ready'" class="ready-memory-section">
+      <article v-for="memory in readyMemories" :key="memory._id">
+        <MemoryComponent v-if="editing !== memory._id" :memory="memory" @refreshMemories="getReadyMemories" @editMemory="updateEditing" />
+      </article>
+    </section>
+
+    <section v-if="option === 'random'" class="random-memory-section">
+      <MemoryComponent v-if="editing !== randomMemory._id" :memory="randomMemory" @refreshMemories="getRandomMemory" @editMemory="updateEditing" />
+    </section>
+  </div>
 </template>
 
 <style scoped>
-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
+/* Add margin below the label */
+.choose-option-label {
+  margin-bottom: 0.5em;
+  font-size: 1.2em;
 }
 
-section,
-p,
-.row {
-  margin: 0 auto;
-  max-width: 60em;
+/* Add some space between sections */
+.ready-memory-section,
+.random-memory-section {
+  margin-top: 1em;
 }
-
+.random-memory-section:hover {
+  transform: scale(1.05);
+}
+/* Update border and box-shadow for MemoryComponent */
 article {
   background-color: var(--base-bg);
+  max-width: 900px;
+  border: 1px solid #ccc;
   border-radius: 1em;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   gap: 0.5em;
   padding: 1em;
+  margin: 0 auto; /* Add this line to center the element */
+}
+article:hover {
+  transform: scale(1.05); /* Scale up by 5% on hover */
 }
 
-.posts {
-  padding: 1em;
-}
-
+/* Add some space between sections */
 .row {
-  display: flex;
-  justify-content: space-between;
-  margin: 0 auto;
-  max-width: 60em;
+  margin-top: 1em;
 }
 </style>

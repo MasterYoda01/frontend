@@ -2,63 +2,103 @@
 import { ref } from "vue";
 
 const dropdownString = ref("");
+const randomDate = ref("");
+const emit = defineEmits(["ready", "random", "blank"]);
 
-const emit = defineEmits(["ready", "random", "editMemory", "refreshMemories"]);
+function pickMemoryType(type: string) {
+  if (type === "Ready") {
+    emit("ready");
+  }
+  if (type === "Random") {
+    emit("blank");
+  }
+}
 </script>
 
 <template>
-  <select id="memoryType" name="dropdown" v-model="dropdownString">
-    <option value="Ready">Ready Memories</option>
-    <option value="Random">Random Memory</option>
-  </select>
+  <div class="dropdown">
+    <select id="memoryType" name="dropdown" v-model="dropdownString" @change="pickMemoryType(dropdownString)" class="custom-select">
+      <option value="Ready">Ready Memories</option>
+      <option value="Random">Random Memory</option>
+    </select>
 
-  <div v-if="dropdownString === 'Ready'">
-    <form @submit.prevent="emit('ready')">
-      <button type="submit" class="pure-button-primary pure-button">Get Ready Memories</button>
+    <form v-if="dropdownString === 'Random'" @submit.prevent="emit('random', randomDate)">
+      <div class="form-group">
+        <label for="dateToOpen">Get a random memory before a certain date</label>
+        <input id="dateToOpen" type="text" v-model="randomDate" placeholder="YYYY-MM-DD" required class="form-control" />
+      </div>
+      <button type="submit" class="btn-primary custom-btn">Get Random Memory</button>
     </form>
   </div>
-  <form v-if="dropdownString === 'Random'" @submit.prevent="emit('random')">
-    <div>
-      <label>Get a random memory before a certain date</label>
-      <input id="dateToOpen" type="text" placeholder="YYYY-MM-DD" required />
-    </div>
-    <button type="submit" class="pure-button-primary pure-button">Get Random Memory</button>
-  </form>
 </template>
 
 <style scoped>
-p {
-  margin: 0em;
+.custom-select {
+  padding: 0.5em;
+  font-size: 1.25em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 200px;
+  margin-bottom: 1em;
+  background-color: #fff; /* Optional: Set a background color */
+  color: #333; /* Optional: Set text color */
 }
 
-.author {
+.custom-select:hover {
+  border-color: #007bff; /* Change border color on hover */
+  background-color: #fff; /* Change background color on hover */
+}
+.form-group label {
+  margin-right: 1em;
+}
+.form-group input {
+  margin-bottom: 0.5em;
+}
+label {
   font-weight: bold;
-  font-size: 1.2em;
 }
 
-menu {
-  list-style-type: none;
+.input-group {
   display: flex;
-  flex-direction: row;
-  gap: 1em;
-  padding: 0;
-  margin: 0;
+  gap: 0.5em;
 }
 
-.timestamp {
-  display: flex;
-  justify-content: flex-end;
-  font-size: 0.9em;
-  font-style: italic;
+.form-control {
+  padding: 0.5em;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 150px;
 }
 
-.base {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.btn {
+  padding: 1em 2em;
+  font-size: 1em;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-.base article:only-child {
-  margin-left: auto;
+.btn-primary {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+.custom-btn {
+  padding: 1em 2em;
+  font-size: 1.25em;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: #007bff;
+  color: #fff;
+  transition: background-color 0.3s;
+}
+
+.custom-btn:hover {
+  background-color: #0056b3;
 }
 </style>

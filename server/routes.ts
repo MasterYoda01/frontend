@@ -102,7 +102,7 @@ class Routes {
     return await User.idsToUsernames(await Friend.getFriends(user));
   }
 
-  @Router.delete("/friends/")
+  @Router.delete("/friends/:friend")
   async removeFriend(session: WebSessionDoc, friend: string) {
     const user = WebSession.getUser(session);
     const friendId = (await User.getUserByUsername(friend))._id;
@@ -172,19 +172,23 @@ class Routes {
     return Comment.delete(commentId);
   }
 
+  @Router.get("/memories/specific/:memoryId")
+  async getSpecificMemory( memoryId: ObjectId){
+    return await Memory.getSpecificMemory(memoryId);
+  }
+
   @Router.get("/memories")
   async getAllReadyMemories(session: WebSessionDoc) {
     const user = WebSession.getUser(session);
     const memories = await Memory.unlockAllReadyMemories(user);
-    console.log(memories)
-    return memories;
+    return await Responses.memories(memories);
   }
 
   @Router.get("/memories/:dateRequested")
   async getRandomMemory(session: WebSessionDoc, dateRequested: Date) {
     const user = WebSession.getUser(session);
     const memories = await Memory.unlockRandomMemory(user, dateRequested);
-    return memories;
+    return await Responses.memory(memories);
   }
 
   @Router.post("/memories")

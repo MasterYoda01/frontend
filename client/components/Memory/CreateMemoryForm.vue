@@ -22,40 +22,86 @@ const createMemory = async (dateToOpen: string, content: string, url: string) =>
 };
 const emptyForm = () => {
   content.value = "";
+  url.value = "";
 };
 </script>
 
 <template>
-  <form @submit.prevent="createMemory(dateToOpen, content, url)">
-    <!-- <label for="content">Add Memory:</label>  make this a header-->
-    <div>
-      <label for="dateToOpen">Memory Open Date:</label>
-      <input id="dateToOpen" type="text" v-model="dateToOpen" placeholder="YYYY-MM-DD" required />
-    </div>
-    <label for="content">Content:</label>
-    <textarea id="content" v-model="content" placeholder="Make a Memory!" required> </textarea>
+  <form @submit.prevent="createMemory(dateToOpen, content, url)" class="memory-form">
+    <h2 class="form-header">Add a Memory</h2>
 
-    <textarea id="inURL" v-model="url" placeholder="Enter Image URL!" required> </textarea>
-    <button type="submit" class="pure-button-primary pure-button">Add Memory</button>
+    <div class="form-group">
+      <label for="dateToOpen" class="label-text">Memory Open Date:</label>
+      <input id="dateToOpen" type="date" v-model="dateToOpen" required />
+    </div>
+
+    <div class="form-group">
+      <label for="content" class="label-text">Content:</label>
+      <textarea id="content" v-model="content" placeholder="Make a Memory!" required></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="inURL" class="label-text">Image URL (Optional):</label>
+      <input id="inURL" type="url" v-model="url" />
+    </div>
+
+    <button type="submit" class="submit-button">Add Memory</button>
   </form>
 </template>
 
 <style scoped>
-form {
+.memory-form {
   background-color: var(--base-bg);
   border-radius: 1em;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5em;
   padding: 1em;
+  max-width: 700px;
+  margin: auto;
+}
+
+.form-header {
+  font-size: 1.5em;
+  margin-bottom: 1em;
+  text-align: center;
+  color: #000; /* Set "Add a Memory" text color to black */
+}
+
+.form-group {
+  margin-bottom: 1em;
+}
+
+.label-text {
+  color: #000; /* Set label text color to black */
+}
+
+input[type="date"],
+input[type="url"],
+textarea {
+  width: calc(100% - 2em); /* Adjusted input width */
+  padding: 0.5em;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 0.5em;
+  box-sizing: border-box; /* Ensures padding doesn't increase the width */
 }
 
 textarea {
-  font-family: inherit;
-  font-size: inherit;
   height: 6em;
-  padding: 0.5em;
+  resize: vertical;
+}
+
+.submit-button {
+  padding: 0.7em 1em;
+  font-size: 1em;
+  border: none;
   border-radius: 4px;
-  resize: none;
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+  width: 100%;
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
 }
 </style>

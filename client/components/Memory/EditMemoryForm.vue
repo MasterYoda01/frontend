@@ -3,35 +3,41 @@ import { ref } from "vue";
 import { fetchy } from "../../utils/fetchy";
 import { formatDate } from "../../utils/formatDate";
 
-const props = defineProps(["post"]);
-const prompt = ref(props.post.prompt);
-const inURL = ref(props.post.inURL);
-const emit = defineEmits(["editPost", "refreshPosts"]);
+const props = defineProps(["memory"]);
+const dateToOpen = ref(props.memory.dateToOpen);
+const content = ref(props.memory.content);
+const url = ref(props.memory.url);
 
-const editPost = async (prompt: string, inURL: string) => {
+const emit = defineEmits(["editMemory", "refreshMemories"]);
+
+const editMemory = async (dateToOpen: string, content: string, url: string) => {
   try {
-    await fetchy(`/api/posts/${props.post._id}`, "PATCH", { body: { update: { prompt: prompt, inURL: inURL } } });
+    await fetchy(`/api/memories/${props.memory._id}`, "PATCH", { body: { update: { dateToOpen: dateToOpen, content: content, url: url } } });
   } catch (e) {
     return;
   }
-  emit("editPost");
-  emit("refreshPosts");
+  emit("editMemory");
+  emit("refreshMemories", props.memory._id);
 };
 </script>
 
 <template>
-  <form @submit.prevent="editPost(prompt, inURL)">
-    <label for="prompt">Image Prompt:</label>
-    <textarea id="prompt" v-model="prompt" placeholder="Create a post!"> </textarea>
-    <label for="inURL">Input inURL:</label>
-    <textarea id="inURL" v-model="inURL" placeholder="Enter Image Prompt!" required> </textarea>
+  <form @submit.prevent="editMemory(dateToOpen, content, url)">
+    <label for="dateToOpen">Change Memory Open Date</label>
+    <input id="dateToOpen" v-model="dateToOpen" placeholder="YYYY-MM-DD Format" required />
+
+    <label for="content">Edit Memory</label>
+    <textarea id="content" v-model="content" placeholder="Edit memory!"> </textarea>
+
+    <label for="url">url:</label>
+    <input id="url" v-model="url" placeholder="Enter Image URL!" />
     <div class="base">
       <menu>
         <li><button class="btn-small pure-button-primary pure-button" type="submit">Save</button></li>
-        <li><button class="btn-small pure-button" @click="emit('editPost')">Cancel</button></li>
+        <li><button class="btn-small pure-button" @click="emit('editMemory')">Cancel</button></li>
       </menu>
-      <p v-if="props.post.dateCreated !== props.post.dateUpdated" class="timestamp">Edited on: {{ formatDate(props.post.dateUpdated) }}</p>
-      <p v-else class="timestamp">Created on: {{ formatDate(props.post.dateCreated) }}</p>
+      <p v-if="props.memory.dateCreated !== props.memory.dateUpdated" class="timestamp">Edited on: {{ formatDate(props.memory.dateUpdated) }}</p>
+      <p v-else class="timestamp">Created on: {{ formatDate(props.memory.dateCreated) }}</p>
     </div>
   </form>
 </template>

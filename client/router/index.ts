@@ -2,6 +2,7 @@ import { storeToRefs } from "pinia";
 import { createRouter, createWebHistory } from "vue-router";
 
 import { useUserStore } from "@/stores/user";
+import FriendView from "../views/FriendView.vue";
 import HomeView from "../views/HomeView.vue";
 import LoginView from "../views/LoginView.vue";
 import MemoryView from "../views/MemoryView.vue";
@@ -27,7 +28,11 @@ const router = createRouter({
       name: "Memories",
       component: MemoryView,
     },
-
+    {
+      path: "/friends",
+      name: "Friends",
+      component: FriendView,
+    },
     {
       path: "/login",
       name: "Login",

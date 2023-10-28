@@ -42,20 +42,53 @@ const emptyForm = () => {
 
 <style scoped>
 form {
-  background-color: var(--base-bg);
-  border-radius: 1em;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5em;
+  background-color: #f8f8f8;
+  border-radius: 10px;
   padding: 1em;
+  max-width: 400px;
+  margin: auto;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+label {
+  font-weight: bold;
+  margin-bottom: 0.5em;
+  font-size: 1em;
+}
+
+label[for="prompt"] {
+  color: black;
+}
+
+label[for="inURL"] {
+  color: black;
+}
+select,
+textarea {
+  width: 100%;
+  padding: 0.5em;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 1em;
 }
 
 textarea {
-  font-family: inherit;
-  font-size: inherit;
-  height: 6em;
-  padding: 0.5em;
+  height: 8em;
+  resize: vertical;
+}
+
+button {
+  padding: 0.7em 1em;
+  font-size: 1em;
+  border: none;
   border-radius: 4px;
-  resize: none;
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
 }
 </style>

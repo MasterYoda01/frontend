@@ -39,17 +39,17 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <section v-if="isLoggedIn">
+  <section v-if="isLoggedIn" class="create-post">
     <h2>Create a post:</h2>
     <CreatePostForm @refreshPosts="getPosts" />
   </section>
-  <div class="row">
-    <h2 v-if="!searchAuthor">Posts:</h2>
+  <div class="row search">
+    <h2 v-if="!searchAuthor"></h2>
     <h2 v-else>Posts by {{ searchAuthor }}:</h2>
     <SearchPostForm @getPostsByAuthor="getPosts" />
   </div>
   <section class="posts" v-if="loaded && posts.length !== 0">
-    <article v-for="post in posts" :key="post._id">
+    <article v-for="post in posts" :key="post._id" class="post">
       <PostComponent v-if="editing !== post._id" :post="post" @refreshPosts="getPosts" @editPost="updateEditing" />
       <EditPostForm v-else :post="post" @refreshPosts="getPosts" @editPost="updateEditing" />
 
@@ -62,36 +62,111 @@ onBeforeMount(async () => {
 </template>
 
 <style scoped>
-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
+/* Add hover effect for buttons */
+button:hover {
+  background-color: #0056b3;
 }
 
-section,
-p,
-.row {
-  margin: 0 auto;
-  max-width: 60em;
+/* Add hover effect for posts */
+.post {
+  transition: transform 0.3s;
+}
+
+.post:hover {
+  transform: scale(1.05);
+}
+
+h3 {
+  font-weight: bold;
+  font-size: 1.3em;
+}
+
+/* Add media query for smaller screens */
+@media screen and (max-width: 768px) {
+  section.posts {
+    gap: 1em; /* Adjust gap for smaller screens */
+  }
+
+  article {
+    max-width: none; /* Allow posts to expand to full width */
+  }
+}
+section.create-post {
+  max-width: 600px; /* Set a maximum width */
+  margin: auto; /* Center the form */
+  background-color: #ffffff;
+  padding: 1em;
+  border-radius: 10px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  font-size: 2em;
+  text-align: center;
+  margin-bottom: 0.5em;
+  color: #333333;
+}
+.row.search {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1em;
+}
+
+.row.search h2 {
+  flex: 1;
+  text-align: center;
+}
+
+.row.search form {
+  margin-left: auto;
+}
+
+.search input[type="text"] {
+  padding: 0.5em;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 70%;
+  margin-right: 1em;
+}
+
+.search button {
+  padding: 0.5em 1em;
+  font-size: 1em;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+}
+
+.search button:hover {
+  background-color: #0056b3;
+}
+
+section.posts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2em; /* Increased gap for more spacing */
+  justify-content: center;
 }
 
 article {
-  background-color: var(--base-bg);
-  border-radius: 1em;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5em;
+  background-color: #f8f8f8;
+  border-radius: 10px;
   padding: 1em;
+  max-width: 400px;
+  width: 100%;
 }
 
-.posts {
-  padding: 1em;
+h3 {
+  font-size: 1.2em;
+  margin-bottom: 0.5em;
+  color: #333333;
 }
 
-.row {
-  display: flex;
-  justify-content: space-between;
-  margin: 0 auto;
-  max-width: 60em;
+p {
+  color: #555555;
 }
 </style>

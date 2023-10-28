@@ -1,53 +1,73 @@
 <script setup lang="ts">
 import { formatDate } from "@/utils/formatDate";
-import { fetchy } from "../../utils/fetchy";
 
 const props = defineProps(["memory"]);
-const emit = defineEmits(["editMemory", "refreshMemories"]);
-
-const deleteMemory = async () => {
-  try {
-    await fetchy(`/api/memories/${props.memory._id}`, "DELETE");
-  } catch {
-    return;
-  }
-  emit("refreshMemories");
-};
 </script>
 
 <template>
-  <p class="author">{{ props.memory.author }}</p>
-  <!-- <label v-if="props.memory.prompt" for="prompt">Image Prompt: {{ props.memory.prompt }}</label> -->
-  <p><img :src="props.memory.inURL" alt="Input ImageURL" width="40" height="40" /></p>
-  <p>{{ props.memory.content }}</p>
-  <div class="base">
-    <menu>
-      <li><button class="btn-small pure-button" @click="emit('editMemory', props.memory._id)">Edit</button></li>
-      <li><button class="button-error btn-small pure-button" @click="deleteMemory">Delete</button></li>
-    </menu>
-    <article class="timestamp">
+  <div class="memory">
+    <div class="date">
+      <label>Date to Open:</label>
+      <span>{{ formatDate(props.memory.dateToOpen) }}</span>
+    </div>
+
+    <div v-if="props.memory.url" class="image-container">
+      <img :src="props.memory.url" alt="Input ImageURL" />
+    </div>
+
+    <p class="content">{{ props.memory.content }}</p>
+
+    <div class="timestamp">
       <p v-if="props.memory.dateCreated !== props.memory.dateUpdated">Edited on: {{ formatDate(props.memory.dateUpdated) }}</p>
       <p v-else>Created on: {{ formatDate(props.memory.dateCreated) }}</p>
-    </article>
+    </div>
   </div>
 </template>
+
 <style scoped>
-p {
-  margin: 0em;
+.memory {
+  background-color: #f8f8f8;
+  border-radius: 10px;
+  padding: 1em;
+  max-width: 500px;
+  margin: auto;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .author {
   font-weight: bold;
   font-size: 1.2em;
+  margin-bottom: 0.5em;
+  color: #333333; /* Set text color to dark gray */
 }
 
-menu {
-  list-style-type: none;
+.date {
   display: flex;
-  flex-direction: row;
-  gap: 1em;
-  padding: 0;
-  margin: 0;
+  align-items: center;
+  margin-bottom: 1em;
+}
+
+.date label {
+  font-weight: bold;
+  margin-right: 0.5em;
+  color: #333333; /* Set text color to dark gray */
+}
+
+.date span {
+  font-size: 1.1em;
+  color: #333333; /* Set text color to dark gray */
+}
+
+.image-container img {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 1em;
+}
+
+.content {
+  font-size: 1.1em;
+  margin-bottom: 1em;
+  color: #333333; /* Set text color to dark gray */
 }
 
 .timestamp {
@@ -55,15 +75,6 @@ menu {
   justify-content: flex-end;
   font-size: 0.9em;
   font-style: italic;
-}
-
-.base {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.base article:only-child {
-  margin-left: auto;
+  color: #555555; /* Set text color to light gray */
 }
 </style>

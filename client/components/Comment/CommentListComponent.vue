@@ -39,12 +39,6 @@ onBeforeMount(async () => {
 <template>
   <CreateCommentForm v-if="isLoggedIn" :postId="props.postId" @refreshComments="getPostComments" />
 
-  <!-- <div class="row">
-    <h2 v-if="!searchAuthor">Comments:</h2>
-    <h2 v-else>Comments by {{ searchAuthor }}:</h2>
-    <SearchCommentForm @getCommentsByAuthor="getComments" />
-  </div> -->
-
   <section class="comments" v-if="loaded && comments.length !== 0">
     <article v-for="comment in comments" :key="comment._id">
       <CommentComponent v-if="editing !== comment._id" :comment="comment" @refreshComments="getPostComments" @editComment="updateEditing" />

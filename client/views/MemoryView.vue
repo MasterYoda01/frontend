@@ -1,24 +1,26 @@
 <script setup lang="ts">
-import { useUserStore } from "@/stores/user";
-import { storeToRefs } from "pinia";
 import MemoryListComponent from "../components/Memory/MemoryListComponent.vue";
-
-const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
 </script>
 
 <template>
-  <main>
+  <main class="memory">
     <h1>Memory Page</h1>
-    <section>
-      <h1 v-if="isLoggedIn">Welcome {{ currentUsername }}!</h1>
-      <h1 v-else>Please login!</h1>
-    </section>
     <MemoryListComponent />
   </main>
 </template>
 
 <style scoped>
-h1 {
-  text-align: center;
+.memory {
+  background-color: black; /* Set the background color to black */
+  color: white; /* Set the text color to white for better visibility */
+  min-height: 100vh; /* Ensure the main element fills the viewport height */
+  text-align: center; /* Center the content horizontally */
 }
+
+h1 {
+  font-size: 2em;
+  margin-bottom: 1em;
+}
+
+/* Add any additional styling for your Memory component */
 </style>

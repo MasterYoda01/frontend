@@ -19,6 +19,12 @@ export default class MemoryConcept {
         }
         return { msg: "Memory successfully created!", memory: await this.memories.readOne({ _id }) };
     }
+    
+    async getSpecificMemory(memoryId: ObjectId){
+        const memory = await this.memories.readOne({memoryId});
+        console.log(memory)
+        return memory;
+    }
 
     async unlockAllReadyMemories(user: ObjectId) {
         const currentDate = new Date();
@@ -29,10 +35,12 @@ export default class MemoryConcept {
     
     async unlockRandomMemory(user: ObjectId, dateRequested: Date) {
         const newDateRequested = new Date(dateRequested)
+        // console.log('daterequested',newDateRequested);
         const query: Filter<MemoryDoc> = {author: user, dateToOpen: { $lte: newDateRequested }}
         const memories = await this.memories.readMany(query);
 
         if (memories.length === 0){
+            
             throw new NoMemoriesReadyError(dateRequested);
         }
         const randomIndex = Math.floor(Math.random() * memories.length);
@@ -100,6 +108,7 @@ export class NoMemoriesReadyError extends NotAllowedError{
         super("No Memories Ready Yet before {0}!", dateRequested);
     }
 }
+
 
 export class EmptyInputsError extends NotAllowedError {
     constructor() 
